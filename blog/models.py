@@ -6,14 +6,21 @@ from django.db.models import Count
 
 class PostManager(models.QuerySet):
     def year(self, year):
-        return self.filter(published_at__year=year).order_by('published_at')
-        
+        return self.filter(
+            published_at__year=year
+        ).order_by('published_at')
+    
+    def popular(self):
+        return self.annotate(
+            count_likes=Count('likes')
+        ).order_by('-count_likes')
+    
 
 class TagManager(models.QuerySet):
-    def most_popular(self, number):
+    def popular(self):
         return self.annotate(
             count_posts=Count('posts')
-        ).order_by('-count_posts')[:number]
+        ).order_by('-count_posts')
 
 
 class Post(models.Model):
