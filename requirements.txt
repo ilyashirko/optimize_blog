@@ -2,3 +2,4 @@ Django==3.1.*
 environs[django]==9.3.0
 pillow==9.1.1 # required by Linux environment
 # Pillow==8.0.*  # required by Windows environment
+django-debug-toolbar==3.2.4
