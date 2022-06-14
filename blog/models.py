@@ -14,7 +14,13 @@ class PostManager(models.QuerySet):
         return self.annotate(
             count_likes=Count('likes')
         ).order_by('-count_likes')
-    
+
+    def fetch_with_comments_count(self):
+        self_with_comments = self.prefetch_related('comments')
+        for post in self_with_comments:
+            post.count_comments = post.comments.count()
+        return self_with_comments
+
 
 class TagManager(models.QuerySet):
     def popular(self):
