@@ -20,14 +20,17 @@ class PostManager(models.QuerySet):
         for post in self_with_comments:
             post.count_comments = post.comments.count()
         return self_with_comments
-
+    
+    
 
 class TagManager(models.QuerySet):
     def popular(self):
         return self.annotate(
             count_posts=Count('posts')
         ).order_by('-count_posts')
-
+    
+    def posts_count(self):
+        return self.annotate(count_posts = Count('posts'))
 
 class Post(models.Model):
     title = models.CharField('Заголовок', max_length=200)
