@@ -11,9 +11,11 @@ class PostManager(models.QuerySet):
         ).order_by('published_at')
     
     def popular(self):
-        return self.annotate(
-            count_likes=Count('likes')
-        ).order_by('-count_likes')
+        return (
+            self.prefetch_related('author', 'tags')
+                .annotate(count_likes=Count('likes'))
+                .order_by('-count_likes')
+        )
 
     def fetch_with_comments_count(self):
         self_with_comments = self.prefetch_related('comments')
@@ -25,12 +27,10 @@ class PostManager(models.QuerySet):
 
 class TagManager(models.QuerySet):
     def popular(self):
-        return self.annotate(
-            count_posts=Count('posts')
-        ).order_by('-count_posts')
+        return self.prefetch_related('posts') \
+                   .annotate(count_posts=Count('posts')) \
+                   .order_by('-count_posts')
     
-    def posts_count(self):
-        return self.annotate(count_posts = Count('posts'))
 
 class Post(models.Model):
     title = models.CharField('Заголовок', max_length=200)
