@@ -68,8 +68,6 @@ def post_detail(request, slug):
 
     likes = post.likes.all()
 
-    related_tags = post.tags.all()
-
     serialized_post = {
         'title': post.title,
         'text': post.text,
@@ -79,7 +77,7 @@ def post_detail(request, slug):
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,
-        'tags': [serialize_tag(tag) for tag in related_tags],
+        'tags': post.tags.all(),
     }
 
     most_popular_tags = Tag.objects.popular()[:5]
