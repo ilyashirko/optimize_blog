@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from blog.models import Comment, Post, Tag
+from blog.models import Post, Tag
 
 
 def serialize_post(post):
@@ -23,17 +23,12 @@ def serialize_tag(tag):
     }
 
 
-def get_likes_count(post):
-    return post.likes.all().count()
-
-
 def index(request):
     most_popular_posts = Post.objects.popular() \
                                      .fetch_with_comments_count()[:5]
 
-    most_fresh_posts = Post.objects.order_by('-published_at')[:5] \
-                                   .prefetch_related('author', 'tags') \
-                                   .fetch_with_comments_count()
+    most_fresh_posts = Post.objects.fresh() \
+                                   .fetch_with_comments_count()[:5]
 
     most_popular_tags = Tag.objects.popular()[:5]
 
@@ -59,7 +54,7 @@ def post_detail(request, slug):
     post = Post.objects.get(slug=slug)
 
     serialized_comments = []
-    for comment in post.comments.all():
+    for comment in post.comments.all().prefetch_related('author'):
         serialized_comments.append({
             'text': comment.text,
             'published_at': comment.published_at,
@@ -107,7 +102,7 @@ def tag_filter(request, tag_title):
                                      .fetch_with_comments_count()[:5]
 
     related_posts = tag.posts.all() \
-                             .prefetch_related('author')[:20] \
+                             .fresh()[:20] \
                              .fetch_with_comments_count()
 
     context = {
