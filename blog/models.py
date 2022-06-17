@@ -1,7 +1,7 @@
-from django.db import models
-from django.urls import reverse
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models import Count
+from django.urls import reverse
 
 
 class PostManager(models.QuerySet):
@@ -9,7 +9,7 @@ class PostManager(models.QuerySet):
         return self.filter(
             published_at__year=year
         ).order_by('published_at')
-    
+
     def popular(self):
         return (
             self.prefetch_related('author', 'tags')
@@ -22,15 +22,14 @@ class PostManager(models.QuerySet):
         for post in self_with_comments:
             post.count_comments = post.comments.count()
         return self_with_comments
-    
-    
+
 
 class TagManager(models.QuerySet):
     def popular(self):
         return self.prefetch_related('posts') \
                    .annotate(count_posts=Count('posts')) \
                    .order_by('-count_posts')
-    
+
 
 class Post(models.Model):
     title = models.CharField('Заголовок', max_length=200)
